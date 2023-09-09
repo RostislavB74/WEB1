@@ -3,7 +3,7 @@ import socket
 
 def main():
     host = socket.gethostname()
-    port = 5000
+    port = 6000
 
     server_socket = socket.socket()
     server_socket.bind((host, port))
