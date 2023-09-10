@@ -78,7 +78,7 @@ def run(server_class=HTTPServer, handler_class=HTTPHandler):
 
 
 def save_data(data):
-    body = urllib.parse.unquote_plus(body.decode())
+    body = urllib.parse.unquote_plus(data.decode())
     try:
         payload = {key: value for key, value in [
             el.split('=') for el in body.split('&')]}
@@ -86,7 +86,7 @@ def save_data(data):
         db_payload = {str(dt_msg): payload}
         with open(BASE_DIR.joinpath('storage/data.json'), 'a', encoding='utf-8') as fd:
             json.dump(db_payload, fd, ensure_ascii=False, indent=5)
-            fd.write(",\n")
+            # fd.write(",\n")
     except ValueError as err:
         logging.error(f"Field parse data:{body} with error {err}")
     except OSError as err:
