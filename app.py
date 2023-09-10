@@ -3,7 +3,6 @@ import logging
 import urllib.parse
 import pathlib
 import socket
-import requests
 from threading import Thread
 import mimetypes
 from datetime import datetime
