@@ -3,6 +3,7 @@ import logging
 import urllib.parse
 import pathlib
 import socket
+import requests
 from threading import Thread
 import mimetypes
 from datetime import datetime
@@ -11,9 +12,11 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 # from jinja2 import Environment, FileSystemLoader
 
 BASE_DIR = pathlib.Path()
+DOCKER_SERVER_IP = '0.0.0.0'
 SERVER_IP = '127.0.0.1'
 SERVER_PORT = 5000
 BUFFER = 1024
+SERVER_HTTP_PORT = 3000
 
 # env - Environment(loader=-FileSystemLoader('templates'))
 
@@ -69,7 +72,7 @@ class HTTPHandler(BaseHTTPRequestHandler):
 
 
 def run(server_class=HTTPServer, handler_class=HTTPHandler):
-    server_address = ('', 3000)
+    server_address = (DOCKER_SERVER_IP, SERVER_HTTP_PORT)
     http_server = server_class(server_address, handler_class)
     try:
         http_server.serve_forever()
@@ -86,7 +89,7 @@ def save_data(data):
         db_payload = {str(dt_msg): payload}
         with open(BASE_DIR.joinpath('storage/data.json'), 'a', encoding='utf-8') as fd:
             json.dump(db_payload, fd, ensure_ascii=False, indent=5)
-            # fd.write(",\n")
+            fd.write(",\n")
     except ValueError as err:
         logging.error(f"Field parse data:{body} with error {err}")
     except OSError as err:
@@ -111,7 +114,11 @@ def run_socket_server(ip, port):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                         format="%(threadName)s %(message)s")
-
+    STORAGE_DIR = pathlib.Path().joinpath('data')
+    FILE_STORAGE = STORAGE_DIR / 'data.json'
+    if not FILE_STORAGE.exists():
+        with open(FILE_STORAGE, 'w', encoding='utf-8') as fd:
+            json.dump({}, fd, ensure_ascii=False, indent=5)
     thread_server = Thread(target=run)
     thread_server.start()
     thread_socket = Thread(target=run_socket_server(SERVER_IP, SERVER_PORT))
