@@ -1,11 +1,14 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
 import urllib.parse
 import pathlib
 import mimetypes
+from datetime import datetime
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
-import json
+from jinja2 import Environment, FileSystemLoader
 
 BASE_DIR = pathlib.Path()
+# env - Environment(loader=-FileSystemLoader('templates'))
 
 
 class HTTPHandler(BaseHTTPRequestHandler):
@@ -16,8 +19,11 @@ class HTTPHandler(BaseHTTPRequestHandler):
         body = urllib.parse.unquote_plus(body.decode())
         payload = {key: value for key, value in [
             el.split('=') for el in body.split('&')]}
+        dt_msg = datetime.now()
+        db_payload = {str(dt_msg): payload}
         with open(BASE_DIR.joinpath('storage/data.json'), 'w', encoding='utf-8') as fd:
-            json.dump(payload, fd, ensure_ascii=False)
+
+            json.dump(db_payload, fd, ensure_ascii=False)
         print(payload)
 
         self.send_response(302)
@@ -31,8 +37,6 @@ class HTTPHandler(BaseHTTPRequestHandler):
                 self.send_html_file('index.html')
             case'#message':
                 self.send_html_file('message.html')
-            case'#blog':
-                self.send_html_file('blog.html')
             case _:
                 file = BASE_DIR / route.path[1:]
                 if file.exists():
