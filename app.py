@@ -20,11 +20,12 @@ class HTTPHandler(BaseHTTPRequestHandler):
         payload = {key: value for key, value in [
             el.split('=') for el in body.split('&')]}
         dt_msg = datetime.now()
-        db_payload = {str(dt_msg): payload}
-        with open(BASE_DIR.joinpath('storage/data.json'), 'w', encoding='utf-8') as fd:
+        dt_payload = {str(dt_msg): payload}
+        with open(BASE_DIR.joinpath('storage/data.json'), 'a', encoding='utf-8') as fd:
 
-            json.dump(db_payload, fd, ensure_ascii=False)
-        print(payload)
+            json.dump(dt_payload, fd, ensure_ascii=False)
+            fd.write(',\n')
+        # print(dt_payload)
 
         self.send_response(302)
         self.send_header('Location', 'index.html')
